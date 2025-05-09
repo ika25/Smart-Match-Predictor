@@ -1,12 +1,13 @@
 import matplotlib.pyplot as plt
+import os
 
-def visualize_head_to_head(df, team1, team2):
+def visualize_head_to_head(df, team1, team2, filename='static/h2h_chart.png'):
     h2h_matches = df[((df['HomeTeam'] == team1) & (df['AwayTeam'] == team2)) |
-                     ((df['HomeTeam'] == team2) & (df['AwayTeam'] == team1))]
+                     ((df['HomeTeam'] == team2) & (df['AwayTeam'] == team1))].copy()
 
     if h2h_matches.empty:
         print(f"No head-to-head history found between {team1} and {team2}.")
-        return
+        return None
 
     h2h_matches = h2h_matches.sort_values(by='Season')
 
@@ -26,7 +27,7 @@ def visualize_head_to_head(df, team1, team2):
     plt.bar(seasons, [1]*len(outcomes), color=colors)
     plt.title(f"Head-to-Head History: {team1} vs {team2}")
     plt.xlabel("Season")
-    plt.ylabel("Winner (1 = Match)")
+    plt.ylabel("Match Result")
     plt.xticks(rotation=45)
 
     legend_labels = []
@@ -39,4 +40,8 @@ def visualize_head_to_head(df, team1, team2):
 
     plt.legend(handles=legend_labels, loc='upper left')
     plt.tight_layout()
-    plt.show()
+
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    plt.savefig(filename)
+    plt.close()
+    return filename

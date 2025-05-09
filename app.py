@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request
 from fetch_premier_league_api import fetch_league_matches
 from Train_Model import train_model
@@ -32,6 +31,7 @@ def index():
     home_team = request.form.get("home_team")
     away_team = request.form.get("away_team")
     team_list = []
+    team1_chart = team2_chart = h2h_chart = None
 
     if league_code:
         seasons = list(range(2010, datetime.now().year + 1))
@@ -39,9 +39,14 @@ def index():
         if not df.empty:
             team_list = sorted(set(df['HomeTeam']).union(df['AwayTeam']))
             if home_team and away_team and home_team != away_team:
-                visualize_team_history(df, home_team)
-                visualize_team_history(df, away_team)
-                visualize_head_to_head(df, home_team, away_team)
+                print("🔄 Generating charts...")
+
+                team1_chart = visualize_team_history(df, home_team, filename='static/team1_chart.png')
+                team2_chart = visualize_team_history(df, away_team, filename='static/team2_chart.png')
+                h2h_chart = visualize_head_to_head(df, home_team, away_team, filename='static/h2h_chart.png')
+
+                print("✅ Chart files created:", team1_chart, team2_chart, h2h_chart)
+
                 summarize_team_results(df, home_team)
                 summarize_team_results(df, away_team)
                 df, team_encoder, result_encoder = preprocess_data(df)
@@ -50,7 +55,15 @@ def index():
                 if home_team in team_encoder.classes_ and away_team in team_encoder.classes_:
                     prediction = predict_match(model, home_team, away_team, team_encoder, result_encoder)
 
-    return render_template("index.html", leagues=LEAGUES, teams=team_list, prediction=prediction)
+    return render_template(
+        "index.html",
+        leagues=LEAGUES,
+        teams=team_list,
+        prediction=prediction,
+        team1_chart=team1_chart,
+        team2_chart=team2_chart,
+        h2h_chart=h2h_chart
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
+import os
 
-def visualize_team_history(df, team_name):
+def visualize_team_history(df, team_name, filename='static/team_history.png'):
     team_matches = df[(df['HomeTeam'] == team_name) | (df['AwayTeam'] == team_name)].copy()
 
     if team_matches.empty:
         print(f"No match history found for {team_name}.")
-        return
+        return None
 
-    # Add goal columns
     team_matches['TeamGoals'] = team_matches.apply(
         lambda row: row['FTHG'] if row['HomeTeam'] == team_name else row['FTAG'], axis=1
     )
@@ -15,7 +15,6 @@ def visualize_team_history(df, team_name):
         lambda row: row['FTAG'] if row['HomeTeam'] == team_name else row['FTHG'], axis=1
     )
 
-    # Group by season
     season_stats = (
         team_matches
         .groupby('Season')
@@ -36,7 +35,6 @@ def visualize_team_history(df, team_name):
     ax1.set_title(f"{team_name} - Match History by Season")
     ax1.tick_params(axis='x', rotation=45)
 
-    # Overlay goals
     ax2 = ax1.twinx()
     ax2.plot(season_stats['Season'], season_stats['TeamGoals'], label='Goals Scored', color='green', marker='o')
     ax2.plot(season_stats['Season'], season_stats['OpponentGoals'], label='Goals Conceded', color='red', marker='o')
@@ -44,4 +42,8 @@ def visualize_team_history(df, team_name):
 
     fig.legend(loc="upper left", bbox_to_anchor=(0.1, 0.9))
     plt.tight_layout()
-    plt.show()
+
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    plt.savefig(filename)
+    plt.close()
+    return filename

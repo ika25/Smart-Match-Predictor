@@ -1,13 +1,19 @@
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Smart Match Predictor</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+        h1, h2, h3 { color: #343a40; }
+        form { margin-bottom: 20px; }
+        select, button { margin: 5px 0; padding: 8px; }
+        img { border: 1px solid #ccc; margin: 10px 0; }
+    </style>
 </head>
 <body>
     <h1>⚽ Smart Match Predictor</h1>
     <form method="POST">
-        <label for="league">Select League:</label>
+        <label for="league">Select League:</label><br>
         <select name="league" onchange="this.form.submit()">
             <option disabled selected value> -- select a league -- </option>
             {% for code, name in leagues.items() %}
@@ -16,19 +22,19 @@
         </select><br><br>
 
         {% if teams %}
-        <label for="home_team">Home Team:</label>
+        <label for="home_team">Home Team:</label><br>
         <select name="home_team">
             {% for team in teams %}
                 <option value="{{ team }}" {% if team == request.form.home_team %}selected{% endif %}>{{ team }}</option>
             {% endfor %}
-        </select>
+        </select><br>
 
-        <label for="away_team">Away Team:</label>
+        <label for="away_team">Away Team:</label><br>
         <select name="away_team">
             {% for team in teams %}
                 <option value="{{ team }}" {% if team == request.form.away_team %}selected{% endif %}>{{ team }}</option>
             {% endfor %}
-        </select>
+        </select><br>
 
         <button type="submit">Predict</button>
         {% endif %}
@@ -36,7 +42,21 @@
 
     {% if prediction %}
         <h2>🔮 Predicted Result: {{ prediction }}</h2>
-        <h3>📊 Team Stats and Visuals (see terminal or charts)</h3>
+    {% endif %}
+
+    {% if team1_chart %}
+        <h3>📊 {{ request.form.home_team }} Match History</h3>
+        <img src="{{ url_for('static', filename='team1_chart.png') }}" width="600">
+    {% endif %}
+
+    {% if team2_chart %}
+        <h3>📊 {{ request.form.away_team }} Match History</h3>
+        <img src="{{ url_for('static', filename='team2_chart.png') }}" width="600">
+    {% endif %}
+
+    {% if h2h_chart %}
+        <h3>⚔️ Head-to-Head</h3>
+        <img src="{{ url_for('static', filename='h2h_chart.png') }}" width="600">
     {% endif %}
 </body>
 </html>
