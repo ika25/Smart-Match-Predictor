@@ -5,6 +5,7 @@ from Train_Model import train_model
 from Predict_New_Match import predict_match
 from Preprocess_Data import preprocess_data
 from visualize_team_history import visualize_team_history
+from visualize_head_to_head import visualize_head_to_head
 
 from datetime import datetime
 
@@ -80,6 +81,9 @@ def run_prediction():
 
     print(f"\n📊 Match history for {away_team}:")
     visualize_team_history(df, away_team)
+
+    print(f"\n📊 Head-to-Head history between {home_team} and {away_team}:")
+    visualize_head_to_head(df, home_team, away_team)
 
     df, team_encoder, result_encoder = preprocess_data(df)
     model, _, _ = train_model(df)
