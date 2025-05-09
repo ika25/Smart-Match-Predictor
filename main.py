@@ -4,22 +4,24 @@ from fetch_premier_league_api import fetch_league_matches
 from Train_Model import train_model
 from Predict_New_Match import predict_match
 from Preprocess_Data import preprocess_data
+from visualize_team_history import visualize_team_history
+
+from datetime import datetime
 
 def fetch_league_teams(api_key, league_code):
     headers = {'X-Auth-Token': api_key}
     url = f'https://api.football-data.org/v4/competitions/{league_code}/teams'
     response = requests.get(url, headers=headers)
-
     if response.status_code != 200:
         print(f"❌ Failed to fetch team list: {response.status_code}")
         return []
-
     data = response.json()
     return [team["name"] for team in data.get("teams", [])]
 
 def run_prediction():
     API_KEY = 'beccff234225471281fc3cfa3bf50ca1'  # Replace with your actual API key
-    seasons = [2022, 2023, 2024, 2025]
+    seasons = list(range(2010, datetime.now().year + 1))  # Clean default from 2010 to present
+
     league_names = {
         'PL': 'Premier League',
         'PD': 'La Liga',
@@ -32,14 +34,12 @@ def run_prediction():
     for code, name in league_names.items():
         print(f"  {code}: {name}")
 
-    # Prompt for league until valid input
     selected_league = ""
     while selected_league not in league_names:
         selected_league = input("\nEnter the league code you want to use: ").strip().upper()
         if selected_league not in league_names:
             print("❌ Invalid league code. Try again.")
 
-    # Fetch current teams from API
     print(f"Fetching current teams in {league_names[selected_league]}...")
     teams = fetch_league_teams(API_KEY, selected_league)
     if not teams:
@@ -48,11 +48,9 @@ def run_prediction():
 
     team_lookup = {t.lower(): t for t in teams}
     print(f"✅ Found {len(teams)} teams:")
-
     for team in teams:
         print(f" - {team}")
 
-    # Input home and away teams with retry + case-insensitive match
     home_team = ""
     while home_team.lower() not in team_lookup:
         home_team = input("\nEnter the home team: ").strip()
@@ -67,19 +65,28 @@ def run_prediction():
         elif away_team.lower() == home_team.lower():
             print("❌ Home and away teams must be different.")
 
-    # Correct team names
     home_team = team_lookup[home_team.lower()]
     away_team = team_lookup[away_team.lower()]
 
-    # Fetch historical data to train model
     print("🔄 Fetching match history...")
     df = fetch_league_matches(API_KEY, selected_league, seasons)
     if df.empty:
         print("❌ No match history available.")
         return
 
+    # Visualize match history before prediction
+    print(f"\n📊 Match history for {home_team}:")
+    visualize_team_history(df, home_team)
+
+    print(f"\n📊 Match history for {away_team}:")
+    visualize_team_history(df, away_team)
+
     df, team_encoder, result_encoder = preprocess_data(df)
     model, _, _ = train_model(df)
+
+    if home_team not in team_encoder.classes_ or away_team not in team_encoder.classes_:
+        print("⚠️ One or both selected teams were not found in training data.")
+        return
 
     result = predict_match(model, home_team, away_team, team_encoder, result_encoder)
     print(f"\n🔮 Prediction for {home_team} vs {away_team}: {result}")
