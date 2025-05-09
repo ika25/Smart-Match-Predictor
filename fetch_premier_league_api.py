@@ -1,17 +1,17 @@
 import requests
 import pandas as pd
 
-def fetch_multiple_seasons(api_key, seasons):
+def fetch_league_matches(api_key, league_code, seasons):
     headers = {'X-Auth-Token': api_key}
     all_matches = []
 
     for season in seasons:
-        print(f"Fetching season {season}...")
-        url = f'https://api.football-data.org/v4/competitions/PL/matches?season={season}'
+        print(f"Fetching {league_code} season {season}...")
+        url = f'https://api.football-data.org/v4/competitions/{league_code}/matches?season={season}'
         response = requests.get(url, headers=headers)
 
         if response.status_code != 200:
-            print(f"Failed to fetch season {season}: {response.status_code}")
+            print(f"Failed to fetch {league_code} season {season}: {response.status_code}")
             continue
 
         data = response.json()
@@ -37,7 +37,9 @@ def fetch_multiple_seasons(api_key, seasons):
                     'FTHG': hg,
                     'FTAG': ag,
                     'FTR': result,
-                    'Season': season
+                    'Season': season,
+                    'League': league_code
                 })
 
     return pd.DataFrame(all_matches)
+
