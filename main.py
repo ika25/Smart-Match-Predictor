@@ -1,19 +1,27 @@
-from PL_match_data import load_dummy_data
+from PL_match_data import load_real_data
 from Train_Model import train_model
 from Predict_New_Match import predict_match
+from sklearn.preprocessing import LabelEncoder
 
 def main():
-    df = load_dummy_data()
-    model, label_encoder, report = train_model(df)
+    # Load real data from a CSV file
+    df = load_real_data("E0.csv")  # Make sure this CSV file exists
     
-    print("Model Evaluation Report:")
-    for label, metrics in report.items():
-        if isinstance(metrics, dict):
-            print(f"{label}: Precision={metrics['precision']:.2f}, Recall={metrics['recall']:.2f}, F1={metrics['f1-score']:.2f}")
+    # Encode team names and results
+    label_encoder = LabelEncoder()
+    df['HomeTeam_enc'] = label_encoder.fit_transform(df['HomeTeam'])
+    df['AwayTeam_enc'] = label_encoder.transform(df['AwayTeam'])
+    df['FTR_enc'] = label_encoder.fit_transform(df['FTR'])  # FTR: Full Time Result (H/D/A)
 
-    # Example prediction
-    result = predict_match(model, label_encoder, home_wins=3, away_wins=2, home_avg_goals=2.2, away_avg_goals=1.4)
-    print("\nPrediction for New Match: ", result)
+    # Train model
+    model = train_model(df)
+
+    # Predict a new match
+    home_team = "Arsenal"
+    away_team = "Chelsea"
+    result = predict_match(model, home_team, away_team, label_encoder)
+
+    print(f"Prediction for {home_team} vs {away_team}: {result}")
 
 if __name__ == "__main__":
     main()

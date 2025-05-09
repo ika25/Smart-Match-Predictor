@@ -1,15 +1,14 @@
 import pandas as pd
 
-# Sample Premier League match data
-data = {
-    "HomeTeam": ["Man City", "Liverpool", "Arsenal", "Chelsea", "Man United"],
-    "AwayTeam": ["Liverpool", "Man City", "Chelsea", "Arsenal", "Spurs"],
-    "HomeWinsLast5": [4, 3, 2, 1, 3],
-    "AwayWinsLast5": [2, 4, 1, 3, 2],
-    "HomeGoalsAvg": [2.8, 2.1, 2.0, 1.2, 1.5],
-    "AwayGoalsAvg": [1.9, 2.7, 1.0, 1.3, 1.4],
-    "Result": ["HomeWin", "AwayWin", "Draw", "AwayWin", "HomeWin"]
-}
+from sklearn.preprocessing import LabelEncoder
+def load_real_data():
+    file_path = r"C:\Users\krich\Desktop\Smart Match Predictor\Smart-Match-Predictor\PL-Data_CSV\E0.csv"  # Use your actual path
+    df = pd.read_csv(file_path)
+    return df
 
-df = pd.DataFrame(data)
-print(df)
+def preprocess_data(df):
+    le = LabelEncoder()
+    df['HomeTeam_enc'] = le.fit_transform(df['HomeTeam'])
+    df['AwayTeam_enc'] = le.transform(df['AwayTeam'])
+    df['FTR_enc'] = le.fit_transform(df['FTR'])
+    return df
