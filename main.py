@@ -6,6 +6,7 @@ from Predict_New_Match import predict_match
 from Preprocess_Data import preprocess_data
 from visualize_team_history import visualize_team_history
 from visualize_head_to_head import visualize_head_to_head
+from summarize_team_results import summarize_team_results
 
 from datetime import datetime
 
@@ -21,7 +22,7 @@ def fetch_league_teams(api_key, league_code):
 
 def run_prediction():
     API_KEY = 'beccff234225471281fc3cfa3bf50ca1'  # Replace with your actual API key
-    seasons = list(range(2010, datetime.now().year + 1))  # Clean default from 2010 to present
+    seasons = list(range(2010, datetime.now().year + 1))
 
     league_names = {
         'PL': 'Premier League',
@@ -75,12 +76,14 @@ def run_prediction():
         print("❌ No match history available.")
         return
 
-    # Visualize match history before prediction
+    # Visuals and stats
     print(f"\n📊 Match history for {home_team}:")
     visualize_team_history(df, home_team)
+    summarize_team_results(df, home_team)
 
     print(f"\n📊 Match history for {away_team}:")
     visualize_team_history(df, away_team)
+    summarize_team_results(df, away_team)
 
     print(f"\n📊 Head-to-Head history between {home_team} and {away_team}:")
     visualize_head_to_head(df, home_team, away_team)
