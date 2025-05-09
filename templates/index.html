@@ -7,7 +7,7 @@
         h1, h2, h3 { color: #343a40; }
         form { margin-bottom: 20px; }
         select, button { margin: 5px 0; padding: 8px; }
-        img { border: 1px solid #ccc; margin: 10px 0; }
+        iframe { margin: 10px 0; border: none; }
     </style>
 </head>
 <body>
@@ -46,17 +46,17 @@
 
     {% if team1_chart %}
         <h3>📊 {{ request.form.home_team }} Match History</h3>
-        <img src="{{ url_for('static', filename='team1_chart.png') }}" width="600">
+        <iframe src="{{ url_for('static', filename='team1_chart.html') }}" width="100%" height="500"></iframe>
     {% endif %}
 
     {% if team2_chart %}
         <h3>📊 {{ request.form.away_team }} Match History</h3>
-        <img src="{{ url_for('static', filename='team2_chart.png') }}" width="600">
+        <iframe src="{{ url_for('static', filename='team2_chart.html') }}" width="100%" height="500"></iframe>
     {% endif %}
 
     {% if h2h_chart %}
         <h3>⚔️ Head-to-Head</h3>
-        <img src="{{ url_for('static', filename='h2h_chart.png') }}" width="600">
+        <iframe src="{{ url_for('static', filename='h2h_chart.html') }}" width="100%" height="500"></iframe>
     {% endif %}
 </body>
 </html>
