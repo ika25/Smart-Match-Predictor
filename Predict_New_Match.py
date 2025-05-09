@@ -29,5 +29,37 @@ def predict_match(model, home_team, away_team, team_encoder, result_encoder):
 
     return predicted_label
 
+def predict_multiple_matches(model, matches, team_encoder, result_encoder):
+    results = []
+
+    for match in matches:
+        home_team = match['home']
+        away_team = match['away']
+
+        try:
+            home_enc = team_encoder.transform([home_team])[0]
+            away_enc = team_encoder.transform([away_team])[0]
+        except ValueError:
+            # Skip if team not seen during training
+            continue
+
+        input_df = pd.DataFrame([[home_enc, away_enc]], columns=['HomeTeam_enc', 'AwayTeam_enc'])
+
+        proba = model.predict_proba(input_df)[0]
+        predicted_class = model.predict(input_df)[0]
+        predicted_label = result_encoder.inverse_transform([predicted_class])[0]
+        class_labels = result_encoder.inverse_transform(model.classes_)
+
+        results.append({
+            'HomeTeam': home_team,
+            'AwayTeam': away_team,
+            'Prediction': predicted_label,
+            class_labels[0]: f"{proba[0]:.2f}",
+            class_labels[1]: f"{proba[1]:.2f}",
+            class_labels[2]: f"{proba[2]:.2f}"
+        })
+
+    return pd.DataFrame(results)
+
 
 
