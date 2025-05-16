@@ -41,9 +41,9 @@ def index():
             if home_team and away_team and home_team != away_team:
                 print("🔄 Generating charts...")
 
-                team1_chart = visualize_team_history(df, home_team, filename='static/team1_chart.png')
-                team2_chart = visualize_team_history(df, away_team, filename='static/team2_chart.png')
-                h2h_chart = visualize_head_to_head(df, home_team, away_team, filename='static/h2h_chart.png')
+                team1_chart = visualize_team_history(df, home_team, filename='static/team1_chart.html')
+                team2_chart = visualize_team_history(df, away_team, filename='static/team2_chart.html')
+                h2h_chart = visualize_head_to_head(df, home_team, away_team, filename='static/h2h_chart.html')
 
                 print("✅ Chart files created:", team1_chart, team2_chart, h2h_chart)
 
